@@ -1,0 +1,44 @@
+package main
+
+import (
+	"io/ioutil"
+	"strings"
+)
+
+func main() {
+	file, _ := ioutil.ReadFile("./input.txt")
+	allIngredients := [][]string{}
+	allAllergens := [][]string{}
+	for _, line := range strings.Split(string(file), "\n") {
+		splitIdx := strings.Index(line, "(")
+		allIngredients = append(allIngredients, strings.Fields(strings.Trim(line[:splitIdx], " ")))
+		allAllergens = append(allAllergens, strings.Split(strings.Trim(line[splitIdx+9:len(line)-1], " "), ", "))
+	}
+
+	possibleAllergens := [string]string{}
+	for _, ingredients := range allIngredients {
+		for _, allergens := range allAllergens {
+			for _, allergen := range allergens {
+				if _, ok := possibleAllergens[allergen]; !ok {
+					possibleAllergens[allergen] = ingredients
+				} else {
+					possibleAllergens[allergen] = getIntersection(possibleAllergens[allergen], ingredients)
+				}
+			}
+		}
+	}
+}
+
+func getIntersection(a []string, b []string) []string {
+	c := map[string]bool{}
+	result := []string{}
+	for _, ax := range a {
+		c[ax] = true
+	}
+	for _, bx := range a {
+		if c[bx] {
+			result = append(result, bx)
+		}
+	}
+	return result
+}
